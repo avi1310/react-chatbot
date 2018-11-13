@@ -1,31 +1,113 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
-// import { ChatBot } from 'aws-amplify-react';
-import { Interactions } from 'aws-amplify';
-import { ChatFeed, Message } from 'react-chat-ui'
-import {Route} from 'react-router-dom'
-import Login from './containers/Login'
-import RChatBot from './ChatBot'
+// import React, { Component } from 'react';
+// import logo from './logo.svg';
+// import './App.css';
+// // import { ChatBot } from 'aws-amplify-react';
+// import { Interactions } from 'aws-amplify';
+// import { ChatFeed, Message } from 'react-chat-ui'
+// import {Route} from 'react-router-dom'
+// import Login from './containers/Login'
+// import RChatBot from './ChatBot'
+
+// class App extends Component {
+//   state = {
+//     userAuthenticated: false
+//   }
+//   userAuth = () => (
+//     this.setState({userAuthenticated: true})
+//   )
+//   render() {
+//     return (
+//       <div className="app">
+//         <Route exact path="/" render={() => (
+//            this.state.userAuthenticated?(
+//             <RChatBot/>):(<Login userAuth={this.userAuth} />)
+//         )}/>
+        
+//       </div>
+//     )
+//   }
+// }
+
+// export default App;
+
+import React, { Component, Fragment } from "react";
+import { Link, withRouter } from "react-router-dom";
+import "./App.css";
+import Routes from "./Routes";
+import { Nav, Navbar, NavItem } from "react-bootstrap";
+import { LinkContainer } from "react-router-bootstrap";
+import { Auth } from "aws-amplify";
+
 
 class App extends Component {
-  state = {
-    userAuthenticated: false
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isAuthenticated: false,
+      isAuthenticating: true
+    };
   }
-  userAuth = () => (
-    this.setState({userAuthenticated: true})
-  )
+
+  async componentDidMount() {
+    try {
+      await Auth.currentSession();
+      this.userHasAuthenticated(true);
+    }
+    catch(e) {
+      if (e !== 'No current user') {
+        alert(e);
+      }
+    }
+
+    this.setState({ isAuthenticating: false });
+  }
+
+  userHasAuthenticated = authenticated => {
+    this.setState({ isAuthenticated: authenticated });
+  }
+  handleLogout = async event => {
+    await Auth.signOut();
+
+    this.userHasAuthenticated(false);
+    this.props.history.push("/login");
+  }
   render() {
+    const childProps = {
+      isAuthenticated: this.state.isAuthenticated,
+      userHasAuthenticated: this.userHasAuthenticated
+    };
+
     return (
-      <div className="app">
-        <Route exact path="/" render={() => (
-           this.state.userAuthenticated?(
-            <RChatBot/>):(<Login userAuth={this.userAuth} />)
-        )}/>
-        
+      !this.state.isAuthenticating &&
+      <div className="App container">
+        <Navbar fluid collapseOnSelect>
+          <Navbar.Header>
+            <Navbar.Brand>
+              <Link to="/">Virtual Concierge Assistant</Link>
+            </Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar.Header>
+          <Navbar.Collapse>
+            <Nav pullRight>
+              {this.state.isAuthenticated
+                ? <NavItem onClick={this.handleLogout}>Logout</NavItem>
+                : <Fragment>
+                    <LinkContainer to="/signup">
+                      <NavItem>Signup</NavItem>
+                    </LinkContainer>
+                    <LinkContainer to="/login">
+                      <NavItem>Login</NavItem>
+                    </LinkContainer>
+                  </Fragment>
+              }
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
+        <Routes childProps={childProps} />
       </div>
-    )
+    );
   }
 }
 
-export default App;
+export default withRouter(App);
