@@ -4,6 +4,9 @@ import './App.css';
 import { ChatBot } from 'aws-amplify-react';
 import { Interactions } from 'aws-amplify';
 import { ChatFeed, Message } from 'react-chat-ui'
+import Dropzone from 'react-dropzone'
+import config from './aws-exports'
+var aws = require('aws-sdk');
 
 export default class RChatBot extends Component {
   state = {
@@ -15,6 +18,59 @@ export default class RChatBot extends Component {
         message: "Hello, how can I help you today?",
       })
     ],
+  }
+  
+  addPhoto() {
+    var albumBucketName = 'photo6998';
+    var bucketRegion = 'us-east-1';
+    var IdentityPoolId = 'us-east-1:b1651fcd-05d8-4d91-9142-f693742a8842';
+
+    // aws.config.update({
+    //   region: bucketRegion,
+    //   credentials: new aws.CognitoIdentityCredentials({
+    //     IdentityPoolId: IdentityPoolId
+    //   })
+    // });
+
+    aws.config.update({ accessKeyId: 'AKIAI36HMTWVY3HJZWOA', secretAccessKey: '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' });
+
+    var s3 = new aws.S3({
+      params: {Bucket: "photo6998"}
+    });
+    var files = document.getElementById('avatar').files;
+    if (!files.length) {
+      return alert('Please choose a file to upload first.');
+    }
+    var file = files[0];
+    var fileName = file.name;
+    // var albumPhotosKey = encodeURIComponent(albumName) + '//';
+
+    // var photoKey = albumPhotosKey + fileName;
+    s3.putObject({
+      Bucket: albumBucketName,
+      Key: fileName,
+      Body: file,
+      ACL: 'public-read'
+    },function(err, data) {
+      if (err) {
+        console.log(err);
+        return alert('There was an error uploading your photo: ', err.message);
+      }
+      alert('Successfully uploaded photo.');
+      // viewAlbum(albumName);
+    });
+    // s3.upload({
+    //   Key: fileName,
+    //   Body: file,
+    //   ACL: 'public-read'
+    // }, function(err, data) {
+    //   if (err) {
+    //     console.log(err);
+    //     return alert('There was an error uploading your photo: ', err.message);
+    //   }
+    //   alert('Successfully uploaded photo.');
+    //   // viewAlbum(albumName);
+    // });
   }
   onChange(e) {
     const input = e.target.value
@@ -67,6 +123,15 @@ export default class RChatBot extends Component {
   render() {
   return (
       <div className="App">
+        <div>
+        <label for="avatar">Upload a picture:</label>
+        <input type="file" id="avatar" name="avatar" accept="image/jpeg" />
+        </div>
+        <button class="favorite styled"
+        type="button" onClick={this.addPhoto}>
+          Upload Image
+        </button>
+
         <header style={styles.header}>
           <p style={styles.headerTitle}>Welcome to Virtual Concierge Assistant!</p>
         </header>
