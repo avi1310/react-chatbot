@@ -111,7 +111,20 @@ export default class RChatBot extends Component {
     })
     messages  = [...this.state.messages, responseMessage]
     this.setState({ messages })
+    console.log(messages);
+    var p = messages[messages.length-1]["message"];
+    var images = p.split(',');
+    for(let i=0; i<images.length; i++) {
+      var img = document.createElement("img");
+      img.src = images[i];
+      img.height = 200;
+      img.width = 200;
+      img.style = "padding: 20px";
+      console.log(img);
+      document.getElementById("images").appendChild(img);
+    }
 
+    console.log(images);
     if (response.dialogState === 'Fulfilled') {
       if (response.intentName === 'OrderFlowers') {
         // const { slots: { FlowerType, PickupDate, PickupTime } } = response
@@ -131,6 +144,8 @@ export default class RChatBot extends Component {
         type="button" onClick={this.addPhoto}>
           Upload Image
         </button>
+        <div id="images">
+        </div>
 
         <header style={styles.header}>
           <p style={styles.headerTitle}>Welcome to Virtual Concierge Assistant!</p>
