@@ -148,7 +148,7 @@ export default class RChatBot extends Component {
         </div>
 
         <header style={styles.header}>
-          <p style={styles.headerTitle}>Welcome to Virtual Concierge Assistant!</p>
+          <p style={styles.headerTitle}>Welcome to Phoyos!</p>
         </header>
         <div style={styles.messagesContainer}>
           <h2>{this.state.finalMessage}</h2>
