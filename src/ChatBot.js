@@ -32,7 +32,7 @@ export default class RChatBot extends Component {
     //   })
     // });
 
-    aws.config.update({ accessKeyId: 'AKIAI36HMTWVY3HJZWOA', secretAccessKey: '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' });
+    aws.config.update({ accessKeyId: '', secretAccessKey: '' });
 
     var s3 = new aws.S3({
       params: {Bucket: "photo6998"}
